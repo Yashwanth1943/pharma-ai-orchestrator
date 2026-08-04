@@ -1,6 +1,5 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
-import { Activity, ArrowRight, ShieldCheck, Cpu, Globe } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Cpu, Globe } from 'lucide-react';
 import { Button } from '../components/ui/Button/Button';
 import { Logo } from '../components/ui/Logo/Logo';
 

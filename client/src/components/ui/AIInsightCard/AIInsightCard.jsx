@@ -1,4 +1,3 @@
-import React from 'react';
 import { Sparkles, AlertCircle, Info, CheckCircle2 } from 'lucide-react';
 import { Card } from '../Card/Card';
 

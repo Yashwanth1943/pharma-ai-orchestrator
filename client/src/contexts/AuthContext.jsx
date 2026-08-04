@@ -1,24 +1,26 @@
-import React, { createContext, useState, useEffect } from 'react';
+import { createContext, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 
-export const AuthContext = createContext();
+const AuthContext = createContext();
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // Check if user is logged in
+  const [user, setUser] = useState(() => {
     const storedUser = sessionStorage.getItem('user');
     const token = sessionStorage.getItem('token');
-    
     if (storedUser && token) {
-      setUser(JSON.parse(storedUser));
+      try {
+        return JSON.parse(storedUser);
+      } catch (_e) {
+        return null;
+      }
     }
-    setLoading(false);
-  }, []);
+    return null;
+  });
+  const navigate = useNavigate();
 
   const login = async (email, password) => {
     try {
@@ -46,7 +48,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, loading: false }}>
       {children}
     </AuthContext.Provider>
   );

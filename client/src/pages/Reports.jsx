@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '../components/ui/Card/Card';
 import { PageHeader } from '../components/ui/PageHeader/PageHeader';
 import { DataTable } from '../components/ui/Table/DataTable';
@@ -6,10 +6,8 @@ import { Button } from '../components/ui/Button/Button';
 import { Badge } from '../components/ui/Badge/Badge';
 import { Download } from 'lucide-react';
 import api from '../services/api';
-import { AuthContext } from '../contexts/AuthContext';
 
 export const Reports = () => {
-  const { user } = useContext(AuthContext);
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 

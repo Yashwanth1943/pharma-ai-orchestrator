@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '../components/ui/Card/Card';
 import { PageHeader } from '../components/ui/PageHeader/PageHeader';
 import { AIInsightCard } from '../components/ui/AIInsightCard/AIInsightCard';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, LineChart, Line } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { BrainCircuit, ThumbsUp, ThumbsDown } from 'lucide-react';
-import { AuthContext } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
 
 const sentimentData = [
@@ -22,7 +22,7 @@ const conversionData = [
 ];
 
 export const PredictiveAnalytics = () => {
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
   const [aiInsight, setAiInsight] = useState(null);
   const [isAiLoading, setIsAiLoading] = useState(true);
 

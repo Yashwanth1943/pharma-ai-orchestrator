@@ -1,15 +1,14 @@
-import React, { useContext } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard, Users, UsersRound, Truck,
   MessageSquareWarning, BarChart3, Bell,
   FileClock, Settings, UserCircle
 } from 'lucide-react';
-import { AuthContext } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { Logo } from '../components/ui/Logo/Logo';
 
-export const Sidebar = ({ isOpen, setIsOpen }) => {
-  const { user } = useContext(AuthContext);
+export const Sidebar = ({ isOpen }) => {
+  const { user } = useAuth();
 
   const menuItems = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, roles: ['Admin', 'Production Team', 'Quality Control (QC)', 'Quality Assurance (QA)', 'Warehouse', 'Service Agent', 'Sales Manager', 'Marketing Manager'] },

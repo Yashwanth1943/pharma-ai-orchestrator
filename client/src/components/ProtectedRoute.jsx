@@ -1,9 +1,8 @@
-import React, { useContext } from 'react';
 import { Navigate } from 'react-router-dom';
-import { AuthContext } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 
 export const ProtectedRoute = ({ children, allowedRoles }) => {
-  const { user, loading } = useContext(AuthContext);
+  const { user, loading } = useAuth();
 
   if (loading) {
     return <div className="flex h-screen items-center justify-center">Loading...</div>;

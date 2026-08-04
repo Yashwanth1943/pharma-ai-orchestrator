@@ -1,6 +1,6 @@
-import React, { useState, useContext } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { AuthContext } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { Button } from '../components/ui/Button/Button';
 import { Input } from '../components/ui/Input/Input';
 import { Lock, Mail } from 'lucide-react';
@@ -12,7 +12,7 @@ export const Login = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
-  const { login } = useContext(AuthContext);
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {

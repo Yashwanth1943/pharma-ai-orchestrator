@@ -1,11 +1,11 @@
-import React, { useState, useContext } from 'react';
-import { Sparkles, Wand2, RefreshCw, Check, Copy, X, Loader } from 'lucide-react';
+import { useState } from 'react';
+import { Sparkles, Wand2, RefreshCw, Check, Copy, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../services/api';
-import { AuthContext } from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 export const AIWritingAssistant = ({ text, onUpdate, context = '' }) => {
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -40,11 +40,8 @@ export const AIWritingAssistant = ({ text, onUpdate, context = '' }) => {
         data: { text, action: actionId, context }
       });
       setResult(res.data.result);
-    } catch (error) {
-      setResult({
-        enhancedText: "Failed to generate AI response. Please try again.",
-        explanation: "Network or server error."
-      });
+    } catch (_error) {
+      alert('Failed to generate suggestions');
     } finally {
       setLoading(false);
     }

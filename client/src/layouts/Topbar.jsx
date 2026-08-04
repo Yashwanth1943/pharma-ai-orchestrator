@@ -1,13 +1,13 @@
-import React, { useContext, useState, useRef, useEffect } from 'react';
-import { Menu, Search, Bell, Sparkles, ChevronDown, LogOut, CheckCircle2, AlertTriangle, Package, CheckCircle } from 'lucide-react';
+import { useState } from 'react';
+import { Menu, Search, Bell, Sparkles, ChevronDown, LogOut, AlertTriangle, Package, CheckCircle } from 'lucide-react';
 import { Avatar } from '../components/ui/Avatar/Avatar';
 import { Link } from 'react-router-dom';
-import { AuthContext } from '../contexts/AuthContext';
-import { SocketContext } from '../contexts/SocketContext';
+import { useAuth } from '../contexts/AuthContext';
+import { useSocket } from '../contexts/SocketContext';
 
 export const Topbar = ({ toggleSidebar, toggleAI }) => {
-  const { user, logout } = useContext(AuthContext);
-  const { notifications, markAllAsRead } = useContext(SocketContext) || { notifications: [], markAllAsRead: () => {} };
+  const { user, logout } = useAuth();
+  const { notifications, markAllAsRead } = useSocket() || { notifications: [], markAllAsRead: () => {} };
   
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);

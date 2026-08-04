@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '../components/ui/Card/Card';
 import { Button } from '../components/ui/Button/Button';
 import { Table } from '../components/ui/Table/Table';
@@ -6,11 +6,11 @@ import { Badge } from '../components/ui/Badge/Badge';
 import { Modal } from '../components/ui/Modal/Modal';
 import { Input } from '../components/ui/Input/Input';
 import api from '../services/api';
-import { AuthContext } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { UserPlus, Eye, EyeOff } from 'lucide-react';
 
 export const UserManagement = () => {
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
   const [users, setUsers] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);

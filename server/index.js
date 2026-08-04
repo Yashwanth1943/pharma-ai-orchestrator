@@ -4,8 +4,8 @@ const cors = require('cors');
 const connectDB = require('./src/config/db');
 
 //  ❌ For DNS 
-// const dns = require('dns');
-// dns.setServers(['8.8.8.8', '8.8.4.4']);
+const dns = require('dns');
+dns.setServers(['8.8.8.8', '8.8.4.4']);
 // ❌ For MongoDB
 
 

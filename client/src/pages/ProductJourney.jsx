@@ -1,19 +1,18 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card } from '../components/ui/Card/Card';
 import { Button } from '../components/ui/Button/Button';
-import { Badge } from '../components/ui/Badge/Badge';
 import { Modal } from '../components/ui/Modal/Modal';
 import { AIWritingAssistant } from '../components/AI/AIWritingAssistant';
 import { AIInsightCard } from '../components/ui/AIInsightCard/AIInsightCard';
 import { PageHeader } from '../components/ui/PageHeader/PageHeader';
 import api from '../services/api';
-import { AuthContext } from '../contexts/AuthContext';
-import { SocketContext } from '../contexts/SocketContext';
-import { Truck, CheckCircle2, FileText } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { useSocket } from '../contexts/SocketContext';
+import { CheckCircle2, FileText } from 'lucide-react';
 
 export const ProductJourney = () => {
-  const { user } = useContext(AuthContext);
-  const { socket } = useContext(SocketContext);
+  const { user } = useAuth();
+  const { socket } = useSocket();
   const [orders, setOrders] = useState([]);
   const [showCompleted, setShowCompleted] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,7 +29,7 @@ export const ProductJourney = () => {
     return 'dashboard';
   };
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       const response = await api.get('/orders');
       setOrders(response.data);
@@ -48,11 +47,11 @@ export const ProductJourney = () => {
       console.error('Failed to fetch orders', error);
       setIsAiLoading(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     fetchOrders();
-  }, []);
+  }, [fetchOrders]);
 
   useEffect(() => {
     if (!socket) return;
@@ -68,7 +67,7 @@ export const ProductJourney = () => {
       socket.off('order_updated', handleOrderUpdate);
       socket.off('new_order', handleOrderUpdate);
     };
-  }, [socket]);
+  }, [socket, user, fetchOrders]);
 
   const getAvailableStatuses = (role, currentStatus) => {
     if (currentStatus === 'Delivered') return [];

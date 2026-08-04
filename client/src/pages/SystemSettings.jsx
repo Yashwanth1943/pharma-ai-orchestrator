@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '../components/ui/Card/Card';
 import { DataTable } from '../components/ui/Table/DataTable';
 import { PageHeader } from '../components/ui/PageHeader/PageHeader';

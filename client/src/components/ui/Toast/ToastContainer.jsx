@@ -1,12 +1,12 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { SocketContext } from '../../../contexts/SocketContext';
-import { AuthContext } from '../../../contexts/AuthContext';
+import { useEffect, useState } from 'react';
+import { useSocket } from '../../../contexts/SocketContext';
+import { useAuth } from '../../../contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bell, X, Package, AlertTriangle, CheckCircle } from 'lucide-react';
 
 export const ToastContainer = () => {
-  const { socket, addNotification } = useContext(SocketContext);
-  const { user } = useContext(AuthContext);
+  const { socket, addNotification } = useSocket();
+  const { user } = useAuth();
   const [toasts, setToasts] = useState([]);
 
   useEffect(() => {
@@ -61,7 +61,7 @@ export const ToastContainer = () => {
       socket.off('role_turn_pending');
       socket.off('order_delivered');
     };
-  }, [socket, user]);
+  }, [socket, user, addNotification]);
 
   const removeToast = (id) => {
     setToasts(prev => prev.filter(t => t.id !== id));

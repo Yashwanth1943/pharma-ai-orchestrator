@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card } from '../components/ui/Card/Card';
 import { Button } from '../components/ui/Button/Button';
 import { DataTable } from '../components/ui/Table/DataTable';
@@ -6,19 +6,18 @@ import { Badge } from '../components/ui/Badge/Badge';
 import { PageHeader } from '../components/ui/PageHeader/PageHeader';
 import { AIInsightCard } from '../components/ui/AIInsightCard/AIInsightCard';
 import api from '../services/api';
-import { AuthContext } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { Target, MessageSquare, Send } from 'lucide-react';
 
 export const MarketingOutreach = () => {
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
   const [segments, setSegments] = useState([]);
   const [campaigns, setCampaigns] = useState([]);
   const [aiInsight, setAiInsight] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [_isLoading, setIsLoading] = useState(true);
   const [isAiLoading, setIsAiLoading] = useState(true);
 
-  const fetchData = async () => {
-    setIsLoading(true);
+  const fetchData = useCallback(async () => {
     try {
       const [segRes, campRes] = await Promise.all([
         api.get('/marketing/segments'),
@@ -41,11 +40,11 @@ export const MarketingOutreach = () => {
       setIsLoading(false);
       setIsAiLoading(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     fetchData();
-  }, [user]);
+  }, [fetchData]);
 
   const segmentColumns = [
     { header: 'Segment Name', accessor: 'name' },
@@ -62,7 +61,7 @@ export const MarketingOutreach = () => {
       </div>
     )},
     { header: 'Last Engaged', accessor: 'lastEngaged' },
-    { header: 'Actions', render: (row) => (
+    { header: 'Actions', render: (_row) => (
       <Button size="sm" variant="secondary" className="flex items-center gap-1">
         <Target size={14} /> Target
       </Button>
@@ -79,7 +78,7 @@ export const MarketingOutreach = () => {
     )},
     { header: 'Target Count', accessor: 'targetCount' },
     { header: 'Success Rate', render: (row) => `${row.successRate}%` },
-    { header: 'Actions', render: (row) => (
+    { header: 'Actions', render: (_row) => (
       <Button size="sm" variant="secondary" className="flex items-center gap-1">
         <MessageSquare size={14} /> View Draft
       </Button>

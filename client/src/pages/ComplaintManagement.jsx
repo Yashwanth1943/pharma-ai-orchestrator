@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card } from '../components/ui/Card/Card';
 import { Button } from '../components/ui/Button/Button';
 import { DataTable } from '../components/ui/Table/DataTable';
@@ -9,11 +9,11 @@ import { AIInsightCard } from '../components/ui/AIInsightCard/AIInsightCard';
 import { PageHeader } from '../components/ui/PageHeader/PageHeader';
 import { StatusBadge } from '../components/ui/StatusBadge/StatusBadge';
 import api from '../services/api';
-import { AuthContext } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { BrainCircuit } from 'lucide-react';
 
 export const ComplaintManagement = () => {
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
   const [complaints, setComplaints] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
@@ -27,7 +27,7 @@ export const ComplaintManagement = () => {
     resolution: ''
   });
 
-  const fetchComplaints = async () => {
+  const fetchComplaints = useCallback(async () => {
     try {
       const response = await api.get('/complaints');
       setComplaints(response.data);
@@ -41,15 +41,15 @@ export const ComplaintManagement = () => {
       });
       if (aiRes.data?.result) setAiInsight(aiRes.data.result);
       setIsAiLoading(false);
-    } catch (error) {
-      console.error('Failed to fetch complaints', error);
+    } catch (_error) {
+      console.error('Failed to fetch complaints', _error);
       setIsAiLoading(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     fetchComplaints();
-  }, []);
+  }, [fetchComplaints]);
 
   const openModal = (complaint) => {
     setSelectedComplaint(complaint);
@@ -67,7 +67,7 @@ export const ComplaintManagement = () => {
       await api.put(`/complaints/${selectedComplaint._id}`, updateData);
       setIsModalOpen(false);
       fetchComplaints();
-    } catch (error) {
+    } catch (_error) {
       alert('Failed to update complaint');
     }
   };
@@ -87,7 +87,7 @@ export const ComplaintManagement = () => {
       
       // Update local state for modal
       setSelectedComplaint({...selectedComplaint, aiSummary: response.data.result});
-    } catch (error) {
+    } catch (_error) {
       alert('Failed to generate AI summary');
     }
   };

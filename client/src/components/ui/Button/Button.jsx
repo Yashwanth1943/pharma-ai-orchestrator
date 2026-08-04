@@ -1,4 +1,3 @@
-import React from 'react';
 
 export const Button = ({ children, variant = 'primary', size = 'md', className = '', ...props }) => {
   const baseStyles = 'inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2';

@@ -1,10 +1,9 @@
-import React, { useContext } from 'react';
-import { SocketContext } from '../contexts/SocketContext';
+import { useSocket } from '../contexts/SocketContext';
 import { Card } from '../components/ui/Card/Card';
 import { Bell, CheckCircle, AlertTriangle, Package } from 'lucide-react';
 
 export const Notifications = () => {
-  const { notifications, markAllAsRead } = useContext(SocketContext) || { notifications: [], markAllAsRead: () => {} };
+  const { notifications, markAllAsRead } = useSocket() || { notifications: [], markAllAsRead: () => {} };
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">

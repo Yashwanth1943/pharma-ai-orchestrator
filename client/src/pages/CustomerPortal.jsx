@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card } from '../components/ui/Card/Card';
 import { Button } from '../components/ui/Button/Button';
 import { Badge } from '../components/ui/Badge/Badge';
@@ -10,7 +10,7 @@ import { DataTable } from '../components/ui/Table/DataTable';
 import { PageHeader } from '../components/ui/PageHeader/PageHeader';
 import { StatusBadge } from '../components/ui/StatusBadge/StatusBadge';
 import api from '../services/api';
-import { AuthContext } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { PackageOpen, AlertTriangle, Plus, Truck, CheckCircle2 } from 'lucide-react';
 
 // Mock product catalog for the demo
@@ -25,7 +25,7 @@ const productCatalog = [
 const STAGES = ['Order Received', 'Production', 'Quality Control', 'Quality Assurance', 'Warehouse', 'Dispatched', 'Delivered'];
 
 export const CustomerPortal = () => {
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
   const [orders, setOrders] = useState([]);
   const [complaints, setComplaints] = useState([]);
   const [isComplaintModalOpen, setIsComplaintModalOpen] = useState(false);
@@ -66,7 +66,7 @@ export const CustomerPortal = () => {
     }
   };
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const [orderRes, complaintRes] = await Promise.all([
         api.get('/orders'),
@@ -84,15 +84,14 @@ export const CustomerPortal = () => {
       });
       if (aiRes.data?.result) setAiInsight(aiRes.data.result);
       setIsAiLoading(false);
-    } catch (error) {
-      console.error('Failed to fetch data', error);
-      setIsAiLoading(false);
+    } catch (_error) {
+      console.error('Failed to fetch data', _error);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   const handleSubmitComplaint = async (e) => {
     e.preventDefault();
@@ -101,8 +100,8 @@ export const CustomerPortal = () => {
       setIsComplaintModalOpen(false);
       fetchData();
       setComplaintData({ orderId: '', type: 'Late Delivery', description: '', priority: 'Medium', assignedDepartment: 'Unassigned' });
-    } catch (error) {
-      alert('Failed to raise complaint');
+    } catch (_error) {
+      alert('Failed to submit complaint');
     }
   };
 

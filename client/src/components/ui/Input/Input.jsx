@@ -1,4 +1,3 @@
-import React from 'react';
 
 export const Input = ({ label, icon: Icon, rightIcon: RightIcon, onRightIconClick, className = '', ...props }) => {
   return (

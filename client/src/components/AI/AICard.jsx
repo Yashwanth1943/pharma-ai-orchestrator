@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { BrainCircuit, CheckCircle, Clock, AlertTriangle, ArrowRight } from 'lucide-react';
 
 export const AICard = ({ data }) => {

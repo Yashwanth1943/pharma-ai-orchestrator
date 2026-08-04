@@ -1,31 +1,45 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { io } from 'socket.io-client';
-import { AuthContext } from './AuthContext';
+import { useAuth } from './AuthContext';
 
-export const SocketContext = createContext();
+const SocketContext = createContext();
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const useSocket = () => useContext(SocketContext);
 
 export const SocketProvider = ({ children }) => {
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
   const [socket, setSocket] = useState(null);
-
-  const [notifications, setNotifications] = useState([]);
+  
+  // Initialize notifications from localStorage if user exists
+  const [notifications, setNotifications] = useState(() => {
+    // This runs once. If user changes, we'll handle it in an effect.
+    if (!user) return [];
+    try {
+      const saved = localStorage.getItem(`pharma_ai_notifications_${user._id}`);
+      return saved ? JSON.parse(saved) : [];
+    } catch (_e) {
+      return [];
+    }
+  });
 
   useEffect(() => {
     if (user) {
-      const saved = localStorage.getItem(`pharma_ai_notifications_${user._id}`);
-      if (saved) {
-        try {
+      try {
+        const saved = localStorage.getItem(`pharma_ai_notifications_${user._id}`);
+        if (saved) {
           setNotifications(JSON.parse(saved));
-        } catch (e) {
+        } else {
           setNotifications([]);
         }
-      } else {
+      } catch (_e) {
         setNotifications([]);
       }
     } else {
       setNotifications([]);
     }
-  }, [user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?._id]);
 
   useEffect(() => {
     if (user) {
@@ -34,10 +48,8 @@ export const SocketProvider = ({ children }) => {
   }, [notifications, user]);
 
   useEffect(() => {
-    // Only connect socket if user is logged in
     if (!user) return;
 
-    // Use VITE_API_URL for production or fallback to localhost for local dev
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
     const newSocket = io(API_URL);
     setSocket(newSocket);
@@ -47,13 +59,13 @@ export const SocketProvider = ({ children }) => {
     };
   }, [user]);
 
-  const addNotification = (notification) => {
+  const addNotification = useCallback((notification) => {
     setNotifications(prev => [{ ...notification, id: Date.now().toString(), read: false }, ...prev].slice(0, 50));
-  };
+  }, []);
 
-  const markAllAsRead = () => {
+  const markAllAsRead = useCallback(() => {
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-  };
+  }, []);
 
   return (
     <SocketContext.Provider value={{ socket, notifications, addNotification, markAllAsRead }}>

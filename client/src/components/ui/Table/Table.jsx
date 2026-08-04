@@ -1,4 +1,3 @@
-import React from 'react';
 
 export const Table = ({ headers, data, renderRow }) => {
   return (

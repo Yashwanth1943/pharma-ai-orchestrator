@@ -1,12 +1,12 @@
-import React, { useState, useContext } from 'react';
+import { useState } from 'react';
 import { X, Send, Loader } from 'lucide-react';
 import api from '../../services/api';
 import { Logo } from '../ui/Logo/Logo';
 import { AICard } from './AICard';
-import { AuthContext } from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 export const AIAssistantDrawer = ({ isOpen, onClose }) => {
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
   const [query, setQuery] = useState('');
   const [response, setResponse] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -24,13 +24,8 @@ export const AIAssistantDrawer = ({ isOpen, onClose }) => {
         data: { query, pageData: { currentURL: window.location.pathname } }
       });
       setResponse(res.data.result);
-    } catch (error) {
-      setResponse({
-        title: "Error",
-        explanation: "Failed to connect to AI Assistant. Please try again.",
-        confidence: 0,
-        priority: "High"
-      });
+    } catch (_error) {
+      setResponse('I apologize, but I encountered an error processing your request. Please try again.');
     } finally {
       setLoading(false);
     }

@@ -1,15 +1,14 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '../components/ui/Card/Card';
-import { Package, Activity, AlertTriangle, Truck, DollarSign, BrainCircuit } from 'lucide-react';
+import { Package, Activity, AlertTriangle, Truck, DollarSign } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
-import { Badge } from '../components/ui/Badge/Badge';
 import { DataTable } from '../components/ui/Table/DataTable';
 import { AIInsightCard } from '../components/ui/AIInsightCard/AIInsightCard';
 import { PageHeader } from '../components/ui/PageHeader/PageHeader';
 import { StatusBadge } from '../components/ui/StatusBadge/StatusBadge';
 import { Button } from '../components/ui/Button/Button';
 import api from '../services/api';
-import { AuthContext } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 const revenueData = [
@@ -29,10 +28,10 @@ const complaintData = [
 ];
 
 export const Dashboard = () => {
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
-  const [complaints, setComplaints] = useState([]);
+
   const [aiInsight, setAiInsight] = useState(null);
   const [loadingAi, setLoadingAi] = useState(false);
   
@@ -57,7 +56,6 @@ export const Dashboard = () => {
         const fetchedComplaints = complaintRes.data;
         
         setOrders(fetchedOrders);
-        setComplaints(fetchedComplaints);
         
         let rev = 0;
         fetchedOrders.forEach(o => rev += o.amount);
@@ -117,7 +115,7 @@ export const Dashboard = () => {
             try {
               await api.put(`/orders/${row._id}/status`, { status: 'Production' });
               setOrders(orders.map(o => o._id === row._id ? { ...o, status: 'Production' } : o));
-            } catch (e) {
+            } catch (_e) {
               alert('Failed to approve order');
             }
           }}
@@ -131,7 +129,7 @@ export const Dashboard = () => {
             try {
               await api.put(`/orders/${row._id}/status`, { status: 'Rejected' });
               setOrders(orders.map(o => o._id === row._id ? { ...o, status: 'Rejected' } : o));
-            } catch (e) {
+            } catch (_e) {
               alert('Failed to reject order');
             }
           }}

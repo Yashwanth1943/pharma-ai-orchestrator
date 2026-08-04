@@ -1,4 +1,3 @@
-import React from 'react';
 
 export const LoadingSkeleton = ({ type = 'card', rows = 3, className = '' }) => {
   if (type === 'table') {

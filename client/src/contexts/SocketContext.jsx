@@ -37,8 +37,9 @@ export const SocketProvider = ({ children }) => {
     // Only connect socket if user is logged in
     if (!user) return;
 
-    // Use localhost:5000 for local dev
-    const newSocket = io('http://localhost:5000');
+    // Use VITE_API_URL for production or fallback to localhost for local dev
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    const newSocket = io(API_URL);
     setSocket(newSocket);
 
     return () => {

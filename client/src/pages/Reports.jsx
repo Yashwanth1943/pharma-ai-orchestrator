@@ -31,9 +31,11 @@ export const Reports = () => {
     const headers = ['Order ID', 'Product', 'Batch', 'Quantity', 'Status', 'Delivery Date'];
     const csvContent = [
       headers.join(','),
-      ...orders.map(o => 
-        `"${o.orderId}","${o.productName}","${o.batchNumber}","${o.quantity}","${o.currentStage}","${new Date(o.expectedDeliveryDate).toLocaleDateString()}"`
-      )
+      ...orders.map(o => {
+        const batchNum = o.orderNumber ? `B-${o.orderNumber.replace('ORD-', '')}` : 'N/A';
+        const deliveryDate = o.updatedAt ? new Date(o.updatedAt).toLocaleDateString() : 'N/A';
+        return `"${o.orderNumber || ''}","${o.productName || ''}","${batchNum}","${o.quantity || ''}","${o.status || ''}","${deliveryDate}"`;
+      })
     ].join('\n');
     
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -47,13 +49,16 @@ export const Reports = () => {
   };
 
   const columns = [
-    { header: 'Order ID', accessor: 'orderId' },
+    { header: 'Order ID', accessor: 'orderNumber' },
     { header: 'Product', accessor: 'productName' },
-    { header: 'Batch', accessor: 'batchNumber' },
+    { 
+      header: 'Batch', 
+      render: (row) => row.orderNumber ? `B-${row.orderNumber.replace('ORD-', '')}` : 'N/A' 
+    },
     { header: 'Quantity', accessor: 'quantity' },
     { header: 'Status', render: (row) => (
-      <Badge variant={row.currentStage === 'Delivered' ? 'success' : 'primary'}>
-        {row.currentStage}
+      <Badge variant={row.status === 'Delivered' ? 'success' : 'primary'}>
+        {row.status}
       </Badge>
     )}
   ];

@@ -3,12 +3,13 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '../components/ui/Button/Button';
 import { Input } from '../components/ui/Input/Input';
-import { Lock, Mail } from 'lucide-react';
+import { Lock, Mail, Eye, EyeOff } from 'lucide-react';
 import { Logo } from '../components/ui/Logo/Logo';
 
 export const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
@@ -69,9 +70,11 @@ export const Login = () => {
             <div>
               <Input 
                 label="Password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
                 icon={Lock}
+                rightIcon={showPassword ? EyeOff : Eye}
+                onRightIconClick={() => setShowPassword(!showPassword)}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required

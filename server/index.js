@@ -4,8 +4,8 @@ const cors = require('cors');
 const connectDB = require('./src/config/db');
 
 //  ❌ For DNS 
-const dns = require('dns');
-dns.setServers(['8.8.8.8', '8.8.4.4']);
+// const dns = require('dns');
+// dns.setServers(['8.8.8.8', '8.8.4.4']);
 // ❌ For MongoDB
 
 
@@ -60,5 +60,5 @@ app.use('/api/audit', auditRoutes);
 
 const PORT = process.env.PORT || 5000;
 
-server.listen(PORT, () =>  console.log(`Server running on port ${PORT}`));
- 
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+

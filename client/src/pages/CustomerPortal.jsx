@@ -11,6 +11,7 @@ import { PageHeader } from '../components/ui/PageHeader/PageHeader';
 import { StatusBadge } from '../components/ui/StatusBadge/StatusBadge';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { useSocket } from '../contexts/SocketContext';
 import { PackageOpen, AlertTriangle, Plus, Truck, CheckCircle2 } from 'lucide-react';
 
 // Mock product catalog for the demo
@@ -26,6 +27,7 @@ const STAGES = ['Order Received', 'Production', 'Quality Control', 'Quality Assu
 
 export const CustomerPortal = () => {
   const { user } = useAuth();
+  const { socket } = useSocket();
   const [orders, setOrders] = useState([]);
   const [complaints, setComplaints] = useState([]);
   const [isComplaintModalOpen, setIsComplaintModalOpen] = useState(false);
@@ -93,10 +95,34 @@ export const CustomerPortal = () => {
     fetchData();
   }, [fetchData]);
 
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleUpdate = () => {
+      fetchData();
+    };
+
+    socket.on('new_order', handleUpdate);
+    socket.on('order_updated', handleUpdate);
+    socket.on('new_complaint', handleUpdate);
+    socket.on('complaint_updated', handleUpdate);
+
+    return () => {
+      socket.off('new_order', handleUpdate);
+      socket.off('order_updated', handleUpdate);
+      socket.off('new_complaint', handleUpdate);
+      socket.off('complaint_updated', handleUpdate);
+    };
+  }, [socket, fetchData]);
+
   const handleSubmitComplaint = async (e) => {
     e.preventDefault();
     try {
-      await api.post('/complaints', complaintData);
+      const submissionData = { ...complaintData };
+      if (!submissionData.orderId) {
+        delete submissionData.orderId;
+      }
+      await api.post('/complaints', submissionData);
       setIsComplaintModalOpen(false);
       fetchData();
       setComplaintData({ orderId: '', type: 'Late Delivery', description: '', priority: 'Medium', assignedDepartment: 'Unassigned' });

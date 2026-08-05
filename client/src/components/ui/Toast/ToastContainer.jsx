@@ -37,8 +37,29 @@ export const ToastContainer = () => {
     });
 
     socket.on('new_complaint', (data) => {
-      if (user.role === 'Admin') {
+      if (
+        user.role === 'Admin' || 
+        user.role === 'Service Agent' || 
+        user.role === data.complaint?.assignedDepartment
+      ) {
         handleNewToast({ title: 'New Complaint', message: data.message, type: 'warning', icon: AlertTriangle });
+      }
+    });
+
+    socket.on('complaint_updated', (data) => {
+      if (
+        user._id === data.complaint?.customerId || 
+        user.role === 'Admin' || 
+        user.role === 'Service Agent' || 
+        user.role === data.complaint?.assignedDepartment
+      ) {
+        const isResolved = data.complaint?.status === 'Resolved';
+        handleNewToast({ 
+          title: isResolved ? 'Complaint Resolved' : 'Complaint Updated', 
+          message: data.message, 
+          type: isResolved ? 'success' : 'info', 
+          icon: AlertTriangle 
+        });
       }
     });
 
@@ -58,6 +79,7 @@ export const ToastContainer = () => {
     return () => {
       socket.off('new_order');
       socket.off('new_complaint');
+      socket.off('complaint_updated');
       socket.off('role_turn_pending');
       socket.off('order_delivered');
     };

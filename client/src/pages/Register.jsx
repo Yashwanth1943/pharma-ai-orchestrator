@@ -23,10 +23,8 @@ export const Register = () => {
     setLoading(true);
 
     try {
-      const response = await api.post('/auth/register', formData);
-      const data = response.data;
-      
-      login(data);
+      await api.post('/auth/register', formData);
+      await login(formData.email, formData.password);
       navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed. Please try again.');

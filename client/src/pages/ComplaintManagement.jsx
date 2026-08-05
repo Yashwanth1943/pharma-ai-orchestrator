@@ -11,9 +11,11 @@ import { StatusBadge } from '../components/ui/StatusBadge/StatusBadge';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { BrainCircuit } from 'lucide-react';
+import { useSocket } from '../contexts/SocketContext';
 
 export const ComplaintManagement = () => {
   const { user } = useAuth();
+  const { socket } = useSocket();
   const [complaints, setComplaints] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
@@ -50,6 +52,22 @@ export const ComplaintManagement = () => {
   useEffect(() => {
     fetchComplaints();
   }, [fetchComplaints]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleComplaintUpdate = () => {
+      fetchComplaints();
+    };
+
+    socket.on('complaint_updated', handleComplaintUpdate);
+    socket.on('new_complaint', handleComplaintUpdate);
+
+    return () => {
+      socket.off('complaint_updated', handleComplaintUpdate);
+      socket.off('new_complaint', handleComplaintUpdate);
+    };
+  }, [socket, fetchComplaints]);
 
   const openModal = (complaint) => {
     setSelectedComplaint(complaint);

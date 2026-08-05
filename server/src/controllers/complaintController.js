@@ -13,7 +13,7 @@ const raiseComplaint = async (req, res) => {
     const complaint = await Complaint.create({
       complaintNumber,
       customerId: req.user._id,
-      orderId,
+      orderId: orderId || undefined,
       type,
       description,
       priority,
@@ -86,6 +86,14 @@ const updateComplaint = async (req, res) => {
     if (resolution) complaint.resolution = resolution;
 
     const updatedComplaint = await complaint.save();
+
+    if (req.io) {
+      req.io.emit('complaint_updated', {
+        message: `Complaint ${updatedComplaint.complaintNumber} is now ${updatedComplaint.status}`,
+        complaint: updatedComplaint
+      });
+    }
+
     res.json(updatedComplaint);
   } catch (error) {
     res.status(500).json({ message: error.message });

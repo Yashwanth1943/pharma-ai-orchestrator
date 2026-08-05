@@ -1,6 +1,32 @@
 # Pharma AI Orchestrator
 
+> [!IMPORTANT]
+> ### 🔑 Default Credentials for Testing
+> To check different dashboards and role-based workflows, log in with the following accounts.
+> All default accounts share the password: **`admin123`**
+>
+> | Name | Email | Role / Department |
+> | :--- | :--- | :--- |
+> | **System Admin** | `admin@pharma.com` | `Admin` |
+> | **Production** | `production@pharma.com` | `Production Team` |
+> | **Quality Control** | `qualitycontrol@pharma.com` | `Quality Control (QC)` |
+> | **Quality Assurance** | `qualityassurance@pharma.com` | `Quality Assurance (QA)` |
+> | **Warehouse** | `warehouse@pharma.com` | `Warehouse` |
+> | **Logistics** | `logistics@pharma.com` | `Logistics` |
+> | **Service Agent** | `serviceagent@pharma.com` | `Service Agent` |
+> | **Sales Manager** | `salesmanager@pharma.com` | `Sales Manager` |
+> | **Marketing Manager** | `marketingmanager@pharma.com` | `Marketing Manager` |
+> | **ABC Hospital** | `yashwanth@gmail.com` | `Customer` |
+> 
+> *If the administrator account does not exist in your database yet, run the seed script in the `/server` folder:*
+> ```bash
+> cd server
+> node seedAdmin.js
+> ```
+
 Pharma AI Orchestrator is a robust, enterprise-grade AI-powered Command Center built for the Pharmaceutical industry. The platform unifies the entire customer lifecycle and supply chain into a single, intelligent application, bridging the gap between customers, production floors, marketing, and executives.
+
+
 
 It uses cutting-edge AI (Groq + Llama 3) not just as a chatbot, but as an embedded decision-support layer across the entire application—helping users draft responses, predict churn, and analyze bottlenecks.
 

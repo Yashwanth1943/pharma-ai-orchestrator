@@ -4,6 +4,7 @@ import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
 import { AIAssistantDrawer } from '../components/AI/AIAssistantDrawer';
 import { ToastContainer } from '../components/ui/Toast/ToastContainer';
+import { ChatWidget } from '../components/chat/ChatWidget';
 
 export const MainLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -36,6 +37,7 @@ export const MainLayout = () => {
       </div>
 
       <AIAssistantDrawer isOpen={isAIOpen} onClose={() => setIsAIOpen(false)} />
+      <ChatWidget />
     </div>
   );
 };

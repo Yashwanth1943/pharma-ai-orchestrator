@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Button } from '../components/ui/Button/Button';
-import { Input } from '../components/ui/Input/Input';
-import { Lock, Mail, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, ArrowLeft } from 'lucide-react';
 import { Logo } from '../components/ui/Logo/Logo';
 
 export const Login = () => {
@@ -13,7 +11,7 @@ export const Login = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
-  const { login } = useAuth();
+  const { login, getRoleHomePath } = useAuth();
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -23,7 +21,7 @@ export const Login = () => {
     
     const result = await login(email, password);
     if (result.success) {
-      navigate('/dashboard');
+      navigate(getRoleHomePath(result.role));
     } else {
       setError(result.message);
       setIsLoading(false);
@@ -31,79 +29,121 @@ export const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50/50 to-white flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background Orbs for Glassmorphism */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
-      <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
-      <div className="absolute -bottom-32 left-1/2 w-96 h-96 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 relative overflow-hidden font-sans text-slate-600">
+      
+      {/* The Canvas: Light Ambient Mesh */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden flex items-center justify-center">
+        <div className="absolute w-[80vw] h-[80vw] max-w-[800px] max-h-[800px] rounded-full bg-blue-400/20 mix-blend-multiply filter blur-[120px] animate-blob"></div>
+        <div className="absolute w-[70vw] h-[70vw] max-w-[700px] max-h-[700px] rounded-full bg-indigo-400/20 mix-blend-multiply filter blur-[120px] animate-blob animation-delay-2000 ml-40 mt-20"></div>
+        <div className="absolute w-[60vw] h-[60vw] max-w-[600px] max-h-[600px] rounded-full bg-cyan-400/20 mix-blend-multiply filter blur-[100px] animate-blob animation-delay-4000 -ml-40 -mt-20"></div>
+        
+        {/* Subtle Grid Overlay */}
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.04] mix-blend-overlay"></div>
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.03)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_10%,transparent_100%)]"></div>
+      </div>
 
-      {/* Glass Card */}
-      <div className="w-full max-w-md bg-white/70 backdrop-blur-xl border border-white shadow-2xl shadow-blue-900/10 rounded-[2rem] p-10 relative z-10">
-        
-        <div className="flex flex-col items-center mb-10">
-          <div className="mb-6 flex justify-center">
-            <Logo size={64} />
+      {/* Back to Home Button */}
+      <Link to="/" className="absolute top-6 left-6 md:top-8 md:left-8 z-20 flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors bg-white/60 hover:bg-white backdrop-blur-md px-4 py-2.5 rounded-xl shadow-sm border border-slate-200">
+        <ArrowLeft size={16} /> <span className="hidden sm:inline">Back to Home</span>
+      </Link>
+
+      {/* Header/Logo */}
+      <div className="relative z-10 mb-10 flex flex-col items-center">
+        <Link to="/" className="group flex flex-col items-center gap-4">
+          <div className="w-14 h-14 bg-white/80 backdrop-blur-xl rounded-2xl flex items-center justify-center border border-white shadow-lg shadow-blue-900/5 group-hover:shadow-xl group-hover:shadow-blue-900/10 transition-all duration-500">
+            <Logo size={32} className="text-blue-600" />
           </div>
-          <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">Welcome back</h2>
-          <p className="text-gray-500 mt-2 text-sm">Please enter your details to sign in.</p>
-        </div>
-        
-        <form onSubmit={handleLogin} className="space-y-6">
-          {error && (
-            <div className="bg-red-50/80 backdrop-blur-sm text-red-600 p-4 rounded-xl text-sm border border-red-100 flex items-center gap-2">
-              <span className="font-medium">{error}</span>
-            </div>
-          )}
+          <span className="font-extrabold text-2xl tracking-tight text-slate-900">Global Pharma</span>
+        </Link>
+      </div>
+
+      {/* The Core: Glass Card */}
+      <div className="relative z-10 w-full max-w-[420px]">
+        <div className="bg-white/60 backdrop-blur-3xl border border-white p-8 sm:p-10 rounded-[2rem] shadow-2xl shadow-blue-900/10">
           
-          <div className="space-y-5">
-            <Input 
-              label="Email address"
-              type="email"
-              placeholder="name@company.com"
-              icon={Mail}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="bg-white/50"
-            />
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Welcome Back</h2>
+            <p className="text-sm text-slate-500 mt-2 font-medium">Access your intelligent supply chain.</p>
+          </div>
+          
+          <form onSubmit={handleLogin} className="space-y-5">
+            {error && (
+              <div className="bg-red-50 border border-red-100 text-red-600 p-3.5 rounded-xl text-sm flex items-center gap-2 animate-fade-in-up">
+                <span className="font-medium">{error}</span>
+              </div>
+            )}
             
-            <div>
-              <Input 
-                label="Password"
-                type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
-                icon={Lock}
-                rightIcon={showPassword ? EyeOff : Eye}
-                onRightIconClick={() => setShowPassword(!showPassword)}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="bg-white/50"
-              />
-              <div className="flex justify-between items-center mt-3">
-                <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer hover:text-gray-900 transition-colors">
-                  <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 bg-white/50" />
-                  Remember me
-                </label>
-                <a href="#" className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
-                  Forgot password?
-                </a>
+            {/* Custom Minimalist Light Inputs */}
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5 ml-1 uppercase tracking-wide">Email Address</label>
+                <div className="relative group">
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" size={18} />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="name@company.com"
+                    required
+                    className="w-full bg-white/80 border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 focus:bg-white transition-all shadow-sm"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-1.5 ml-1 mr-1">
+                  <label className="text-xs font-bold text-slate-700 uppercase tracking-wide">Password</label>
+                  <a href="#" className="text-[11px] font-bold text-blue-600 hover:text-blue-700 transition-colors">Forgot?</a>
+                </div>
+                <div className="relative group">
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" size={18} />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    required
+                    className="w-full bg-white/80 border border-slate-200 rounded-xl py-3 pl-10 pr-10 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 focus:bg-white transition-all shadow-sm"
+                  />
+                  <button 
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
 
-          <Button type="submit" className="w-full h-12 text-base font-semibold shadow-lg shadow-blue-600/20 rounded-xl" disabled={isLoading}>
-            {isLoading ? 'Signing in...' : 'Sign in to Dashboard'}
-          </Button>
-        </form>
+            <button 
+              type="submit" 
+              disabled={isLoading}
+              className="w-full h-12 mt-6 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-70 disabled:active:scale-100 shadow-lg shadow-slate-900/20"
+            >
+              {isLoading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Authenticating...
+                </>
+              ) : (
+                <>
+                  Continue <ArrowRight size={16} />
+                </>
+              )}
+            </button>
+          </form>
 
-        <p className="text-center mt-8 text-sm text-gray-600">
-          Don't have an account?{' '}
-          <Link to="/register" className="text-blue-600 font-bold hover:text-blue-700 transition-colors">
-            Sign up now
+        </div>
+
+        <p className="text-center mt-8 text-sm text-slate-500 font-medium">
+          New to Global Pharma?{' '}
+          <Link to="/register" className="text-slate-900 hover:text-blue-600 font-bold transition-colors ml-1">
+            Create an account
           </Link>
         </p>
       </div>
+      
     </div>
   );
 };

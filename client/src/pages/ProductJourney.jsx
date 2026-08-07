@@ -114,6 +114,18 @@ export const ProductJourney = () => {
 
   const STAGES = ['Order Received', 'Production', 'Quality Control', 'Quality Assurance', 'Warehouse', 'Dispatched', 'Delivered'];
 
+  // Server already filters orders by role. Client filters 'Delivered' based on toggle.
+  const getRoleFilterLabel = (role) => {
+    const labels = {
+      'Production Team': 'Showing orders in: Order Received, Production',
+      'Quality Control (QC)': 'Showing orders in: Quality Control stage',
+      'Quality Assurance (QA)': 'Showing orders in: Quality Assurance stage',
+      'Warehouse': 'Showing orders in: Warehouse stage',
+      'Logistics': 'Showing orders in: Dispatched → Delivered',
+    };
+    return labels[role] || null;
+  };
+
   const displayedOrders = showCompleted ? orders : orders.filter(o => o.status !== 'Delivered');
 
   return (
@@ -129,6 +141,14 @@ export const ProductJourney = () => {
       />
 
       <AIInsightCard insight={aiInsight} isLoading={isAiLoading} />
+
+      {/* Role context indicator */}
+      {getRoleFilterLabel(user?.role) && (
+        <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-100 rounded-lg text-sm text-blue-700 font-medium w-fit">
+          <span className="w-2 h-2 rounded-full bg-blue-500 inline-block" />
+          {getRoleFilterLabel(user?.role)}
+        </div>
+      )}
 
       <div className="space-y-4">
         {displayedOrders.length === 0 ? (

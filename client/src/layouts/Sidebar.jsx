@@ -2,24 +2,32 @@ import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard, Users, UsersRound, Truck,
   MessageSquareWarning, BarChart3, Bell,
-  FileClock, Settings, UserCircle
+  FileClock, Settings, UserCircle,
+  ClipboardList, ShieldCheck, Activity, MessageSquare
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useSocket } from '../contexts/SocketContext';
 import { Logo } from '../components/ui/Logo/Logo';
 
-export const Sidebar = ({ isOpen }) => {
+export const Sidebar = ({ isOpen, setIsOpen }) => {
   const { user } = useAuth();
+  const { unreadChatCount } = useSocket() || {};
 
   const menuItems = [
-    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, roles: ['Admin', 'Production Team', 'Quality Control (QC)', 'Quality Assurance (QA)', 'Warehouse', 'Service Agent', 'Sales Manager', 'Marketing Manager'] },
+    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, roles: ['Admin', 'Production Team', 'Quality Control (QC)', 'Quality Assurance (QA)', 'Warehouse', 'Logistics', 'Service Agent', 'Sales Manager', 'Marketing Manager'] },
     { name: 'My Portal', path: '/portal', icon: UserCircle, roles: ['Customer'] },
     { name: 'Product Journey', path: '/journey', icon: Truck, roles: ['Admin', 'Production Team', 'Quality Control (QC)', 'Quality Assurance (QA)', 'Warehouse', 'Logistics'] },
     { name: 'Marketing & Outreach', path: '/marketing', icon: UsersRound, roles: ['Admin', 'Marketing Manager', 'Sales Manager'] },
     { name: 'Predictive Analytics', path: '/analytics', icon: BarChart3, roles: ['Admin', 'Marketing Manager', 'Sales Manager'] },
     { name: 'Reports', path: '/reports', icon: FileClock, roles: ['Admin', 'Marketing Manager', 'Sales Manager', 'Quality Assurance (QA)'] },
+    { name: 'Directory', path: '/directory', icon: Users, roles: ['Admin', 'Production Team', 'Quality Control (QC)', 'Quality Assurance (QA)', 'Warehouse', 'Logistics', 'Service Agent', 'Sales Manager', 'Marketing Manager'] },
+    { name: 'Messages', path: '/messages', icon: MessageSquare, roles: ['Admin', 'Production Team', 'Quality Control (QC)', 'Quality Assurance (QA)', 'Warehouse', 'Logistics', 'Service Agent', 'Sales Manager', 'Marketing Manager'], badge: unreadChatCount > 0 ? unreadChatCount : null },
     { name: 'User Management', path: '/users', icon: Users, roles: ['Admin'] },
     { name: 'Complaints', path: '/complaints', icon: MessageSquareWarning, roles: ['Admin', 'Service Agent', 'Quality Control (QC)', 'Production Team', 'Warehouse', 'Logistics'] },
-    { name: 'System Settings', path: '/settings', icon: Settings, roles: ['Admin'] },
+    { name: 'Audit Logs', path: '/audit', icon: ClipboardList, roles: ['Admin'] },
+    { name: 'Consent & Recs', path: '/consent', icon: ShieldCheck, roles: ['Admin', 'Marketing Manager'] },
+    { name: 'AI Outcomes', path: '/outcomes', icon: Activity, roles: ['Admin', 'Marketing Manager', 'Sales Manager'] },
+    { name: 'System Settings', path: '/settings', icon: Settings },
     { name: 'Notifications', path: '/notifications', icon: Bell },
   ];
 
@@ -38,15 +46,23 @@ export const Sidebar = ({ isOpen }) => {
           <NavLink
             key={item.name}
             to={item.path}
+            onClick={() => setIsOpen?.(false)}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${isActive
+              `flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors ${isActive
                 ? 'bg-blue-50 text-blue-700'
                 : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`
             }
           >
-            <item.icon size={20} />
-            <span>{item.name}</span>
+            <div className="flex items-center gap-3">
+              <item.icon size={20} />
+              <span>{item.name}</span>
+            </div>
+            {item.badge && (
+              <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                {item.badge}
+              </span>
+            )}
           </NavLink>
         ))}
       </nav>

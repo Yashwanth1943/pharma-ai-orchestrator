@@ -6,7 +6,7 @@ const Complaint = require('../models/Complaint');
 const raiseComplaint = async (req, res) => {
   try {
     const { orderId, type, description, priority, assignedDepartment } = req.body;
-    
+
     const count = await Complaint.countDocuments();
     const complaintNumber = `CMP-${1000 + count}`;
 
@@ -16,7 +16,7 @@ const raiseComplaint = async (req, res) => {
       orderId: orderId || undefined,
       type,
       description,
-      priority,
+      priority: priority || 'Medium',
       assignedDepartment: assignedDepartment || 'Unassigned',
       status: 'Open'
     });
@@ -41,22 +41,46 @@ const getComplaints = async (req, res) => {
   try {
     let complaints;
     const role = req.user.role;
-    
+
     if (role === 'Customer') {
+      // Customers only see their own complaints
       complaints = await Complaint.find({ customerId: req.user._id })
         .populate('customerId', 'name email')
-        .populate('orderId', 'orderNumber productName');
+        .populate('orderId', 'orderNumber productName')
+        .sort({ createdAt: -1 });
     } else if (role === 'Admin') {
+      // Admin sees all complaints
       complaints = await Complaint.find({})
         .populate('customerId', 'name email')
-        .populate('orderId', 'orderNumber productName');
-    } else {
-      // For specific departments (e.g., Warehouse, Production Team)
-      complaints = await Complaint.find({ assignedDepartment: role })
+        .populate('orderId', 'orderNumber productName')
+        .sort({ createdAt: -1 });
+    } else if (role === 'Service Agent') {
+      // Service Agents see all complaints (they are the front-line support)
+      complaints = await Complaint.find({})
         .populate('customerId', 'name email')
-        .populate('orderId', 'orderNumber productName');
+        .populate('orderId', 'orderNumber productName')
+        .sort({ createdAt: -1 });
+    } else {
+      // Specific departments see complaints assigned to them
+      // The assignedDepartment values in enum match department role names directly
+      const departmentRoleMap = {
+        'Production Team': 'Production Team',
+        'Quality Control (QC)': 'Quality Control (QC)',
+        'Quality Assurance (QA)': 'Quality Assurance (QA)',
+        'Warehouse': 'Warehouse',
+        'Logistics': 'Logistics',
+      };
+      const deptValue = departmentRoleMap[role];
+      if (deptValue) {
+        complaints = await Complaint.find({ assignedDepartment: deptValue })
+          .populate('customerId', 'name email')
+          .populate('orderId', 'orderNumber productName')
+          .sort({ createdAt: -1 });
+      } else {
+        complaints = [];
+      }
     }
-    
+
     res.json(complaints);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -68,7 +92,7 @@ const getComplaints = async (req, res) => {
 // @access  Private (Admin only)
 const updateComplaint = async (req, res) => {
   try {
-    // Only Admin can update complaints based on requirements
+    // Only Admin can update complaints
     if (req.user.role !== 'Admin') {
       return res.status(403).json({ message: 'Only administrators can update complaints.' });
     }
@@ -81,9 +105,9 @@ const updateComplaint = async (req, res) => {
     }
 
     if (status) complaint.status = status;
-    if (assignedDepartment) complaint.assignedDepartment = assignedDepartment;
+    if (assignedDepartment !== undefined) complaint.assignedDepartment = assignedDepartment;
     if (aiSummary) complaint.aiSummary = aiSummary;
-    if (resolution) complaint.resolution = resolution;
+    if (resolution !== undefined) complaint.resolution = resolution;
 
     const updatedComplaint = await complaint.save();
 

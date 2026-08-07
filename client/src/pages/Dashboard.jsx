@@ -113,8 +113,8 @@ export const Dashboard = () => {
           size="sm"
           onClick={async () => {
             try {
-              await api.put(`/orders/${row._id}/status`, { status: 'Production' });
-              setOrders(orders.map(o => o._id === row._id ? { ...o, status: 'Production' } : o));
+              await api.put(`/orders/${row._id}/status`, { status: 'Order Received' });
+              setOrders(orders.map(o => o._id === row._id ? { ...o, status: 'Order Received' } : o));
             } catch (_e) {
               alert('Failed to approve order');
             }

@@ -37,6 +37,7 @@ const complaintSchema = new mongoose.Schema({
       'Quality Assurance (QA)',
       'Warehouse',
       'Logistics',
+      'Service Agent',
       'Finance'
     ],
     default: 'Unassigned',

@@ -1,9 +1,10 @@
-import { useState } from 'react';
-import { Menu, Search, Bell, Sparkles, ChevronDown, LogOut, AlertTriangle, Package, CheckCircle } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Menu, Search, Bell, Sparkles, ChevronDown, LogOut, AlertTriangle, Package, CheckCircle, X, UserCircle } from 'lucide-react';
 import { Avatar } from '../components/ui/Avatar/Avatar';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useSocket } from '../contexts/SocketContext';
+import api from '../services/api';
 
 export const Topbar = ({ toggleSidebar, toggleAI }) => {
   const { user, logout } = useAuth();
@@ -11,6 +12,62 @@ export const Topbar = ({ toggleSidebar, toggleAI }) => {
   
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState({ orders: [], complaints: [], users: [] });
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  
+  const searchRef = useRef(null);
+  const notificationsRef = useRef(null);
+  const profileRef = useRef(null);
+  const navigate = useNavigate();
+
+  // Close dropdowns if clicked outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setSearchOpen(false);
+      }
+      if (notificationsRef.current && !notificationsRef.current.contains(event.target)) {
+        setNotificationsOpen(false);
+      }
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Debounced search effect
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults({ orders: [], complaints: [] });
+      setIsSearching(false);
+      return;
+    }
+
+    const delayDebounceFn = setTimeout(async () => {
+      setIsSearching(true);
+      try {
+        const res = await api.get(`/search?q=${searchQuery}`);
+        setSearchResults(res.data);
+      } catch (error) {
+        console.error('Search failed', error);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
+
+  const handleSearchClick = (path) => {
+    setSearchOpen(false);
+    setSearchQuery('');
+    navigate(path);
+  };
 
   const unreadCount = notifications ? notifications.filter(n => !n.read).length : 0;
 
@@ -31,17 +88,119 @@ export const Topbar = ({ toggleSidebar, toggleAI }) => {
         >
           <Menu size={24} />
         </button>
-        <div className="hidden sm:flex items-center relative">
+        <div className="hidden sm:flex items-center relative" ref={searchRef}>
           <Search className="absolute left-3 text-gray-400" size={18} />
           <input
             type="text"
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setSearchOpen(true);
+            }}
+            onFocus={() => { if (searchQuery) setSearchOpen(true); }}
             placeholder="Search orders, customers, complaints..."
-            className="pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm w-64 lg:w-96 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all"
+            className="pl-10 pr-8 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm w-64 lg:w-96 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all"
           />
+          {searchQuery && (
+            <button 
+              onClick={() => { setSearchQuery(''); setSearchOpen(false); }}
+              className="absolute right-3 text-gray-400 hover:text-gray-600"
+            >
+              <X size={14} />
+            </button>
+          )}
+
+          {searchOpen && searchQuery && (
+            <div className="absolute top-full left-0 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden z-50">
+              {isSearching ? (
+                <div className="p-4 text-center text-sm text-gray-500">
+                  <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                  Searching...
+                </div>
+              ) : (
+                <div className="max-h-96 overflow-y-auto">
+                  {searchResults.orders?.length === 0 && searchResults.complaints?.length === 0 && searchResults.users?.length === 0 ? (
+                    <div className="p-4 text-center text-sm text-gray-500">No results found for "{searchQuery}"</div>
+                  ) : (
+                    <>
+                      {searchResults.users?.length > 0 && (
+                        <div>
+                          <div className="px-4 py-2 bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                            Users
+                          </div>
+                          {searchResults.users.map(u => (
+                            <div 
+                              key={u._id}
+                              onClick={() => handleSearchClick('/directory')}
+                              className="px-4 py-3 hover:bg-purple-50/50 cursor-pointer border-b border-gray-50 last:border-0 flex items-center gap-3 transition-colors"
+                            >
+                              <div className="p-2 bg-purple-100 text-purple-600 rounded-lg">
+                                <UserCircle size={16} />
+                              </div>
+                              <div>
+                                <p className="text-sm font-medium text-gray-900">{u.name}</p>
+                                <p className="text-xs text-gray-500">{u.email} • {u.role}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {searchResults.orders?.length > 0 && (
+                        <div>
+                          <div className="px-4 py-2 bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                            Orders
+                          </div>
+                          {searchResults.orders.map(order => (
+                            <div 
+                              key={order._id}
+                              onClick={() => handleSearchClick(user?.role === 'Customer' ? '/portal' : '/journey')}
+                              className="px-4 py-3 hover:bg-blue-50/50 cursor-pointer border-b border-gray-50 last:border-0 flex items-center gap-3 transition-colors"
+                            >
+                              <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
+                                <Package size={16} />
+                              </div>
+                              <div>
+                                <p className="text-sm font-medium text-gray-900">{order.orderNumber}</p>
+                                <p className="text-xs text-gray-500">{order.productName} • {order.customerId?.name}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {searchResults.complaints?.length > 0 && (
+                        <div>
+                          <div className="px-4 py-2 bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100 border-t">
+                            Complaints
+                          </div>
+                          {searchResults.complaints.map(complaint => (
+                            <div 
+                              key={complaint._id}
+                              onClick={() => handleSearchClick(user?.role === 'Customer' ? '/portal' : '/complaints')}
+                              className="px-4 py-3 hover:bg-amber-50/50 cursor-pointer border-b border-gray-50 last:border-0 flex items-center gap-3 transition-colors"
+                            >
+                              <div className="p-2 bg-amber-100 text-amber-600 rounded-lg">
+                                <AlertTriangle size={16} />
+                              </div>
+                              <div>
+                                <p className="text-sm font-medium text-gray-900">{complaint.complaintNumber}</p>
+                                <p className="text-xs text-gray-500">{complaint.type} • {complaint.customerId?.name}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
       <div className="flex items-center gap-4">
-        <div className="relative">
+        <div className="relative" ref={notificationsRef}>
           <button 
             onClick={handleNotificationsClick}
             className="relative text-gray-500 hover:text-gray-700 transition-colors p-1"
@@ -112,7 +271,7 @@ export const Topbar = ({ toggleSidebar, toggleAI }) => {
           <span className="hidden sm:inline">AI Assistant</span>
         </button>
 
-        <div className="relative">
+        <div className="relative" ref={profileRef}>
           <div
             className="flex items-center gap-2 cursor-pointer pl-4 border-l border-gray-200"
             onClick={() => {

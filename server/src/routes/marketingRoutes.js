@@ -1,10 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const { getCampaigns, createCampaign, getSegments } = require('../controllers/marketingController');
+const { protect, authorize } = require('../middleware/authMiddleware');
 
-// All routes should be protected, but for demo we just route them
-router.get('/campaigns', getCampaigns);
-router.post('/campaigns', createCampaign);
-router.get('/segments', getSegments);
+const MARKETING_ROLES = ['Admin', 'Marketing Manager', 'Sales Manager'];
+
+router.get('/campaigns', protect, authorize(...MARKETING_ROLES), getCampaigns);
+router.post('/campaigns', protect, authorize(...MARKETING_ROLES), createCampaign);
+router.get('/segments', protect, authorize(...MARKETING_ROLES), getSegments);
 
 module.exports = router;

@@ -1,74 +1,89 @@
 import { useSocket } from '../contexts/SocketContext';
+import { Bell, CheckCircle, AlertTriangle, Package, Trash2, CheckCheck } from 'lucide-react';
 import { Card } from '../components/ui/Card/Card';
-import { Bell, CheckCircle, AlertTriangle, Package } from 'lucide-react';
+import { Button } from '../components/ui/Button/Button';
+import { PageHeader } from '../components/ui/PageHeader/PageHeader';
 
 export const Notifications = () => {
   const { notifications, markAllAsRead } = useSocket() || { notifications: [], markAllAsRead: () => {} };
 
-  return (
-    <div className="space-y-6 max-w-4xl mx-auto">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <Bell className="text-blue-600" /> Notifications
-          </h1>
-          <p className="text-gray-500">View all your recent alerts and updates.</p>
-        </div>
-        <button 
-          onClick={markAllAsRead}
-          className="text-sm font-medium text-blue-600 bg-blue-50 px-4 py-2 rounded-lg hover:bg-blue-100 transition-colors"
-        >
-          Mark all as read
-        </button>
-      </div>
+  const unreadCount = notifications.filter(n => !n.read).length;
 
-      <Card className="p-0 overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl">
+  const getIcon = (type) => {
+    switch (type) {
+      case 'success': return { Icon: CheckCircle, color: 'text-green-500', bg: 'bg-green-50' };
+      case 'warning': return { Icon: AlertTriangle, color: 'text-amber-500', bg: 'bg-amber-50' };
+      default:        return { Icon: Package, color: 'text-blue-500', bg: 'bg-blue-50' };
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        title="Notifications"
+        subtitle="Stay informed about orders, complaints, and department updates in real-time."
+        actionPrimary={
+          unreadCount > 0 ? (
+            <Button onClick={markAllAsRead} variant="secondary" className="flex items-center gap-2">
+              <CheckCheck size={16} />
+              Mark All as Read ({unreadCount})
+            </Button>
+          ) : null
+        }
+      />
+
+      <Card className="p-0 overflow-hidden">
         {notifications.length === 0 ? (
-          <div className="text-center py-16">
-            <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-100">
-              <Bell className="text-gray-300" size={24} />
+          <div className="flex flex-col items-center justify-center py-20 text-center px-6">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+              <Bell size={28} className="text-gray-400" />
             </div>
-            <h3 className="text-gray-900 font-medium text-lg">You're all caught up!</h3>
-            <p className="text-gray-500 mt-1">No new notifications at the moment.</p>
+            <h3 className="text-lg font-semibold text-gray-700 mb-1">No notifications yet</h3>
+            <p className="text-sm text-gray-500 max-w-sm">
+              You'll be notified here when orders are updated, complaints are raised, or actions are required from your department.
+            </p>
           </div>
         ) : (
-          <div className="divide-y divide-gray-100">
-            {notifications.map(notif => {
-              const Icon = notif.type === 'success' ? CheckCircle : 
-                           notif.type === 'warning' ? AlertTriangle : 
-                           Package;
-              const color = notif.type === 'success' ? 'text-green-500 bg-green-50' :
-                            notif.type === 'warning' ? 'text-amber-500 bg-amber-50' :
-                            'text-blue-500 bg-blue-50';
-                            
+          <ul className="divide-y divide-gray-100">
+            {notifications.map((notif) => {
+              const { Icon, color, bg } = getIcon(notif.type);
               return (
-                <div 
-                  key={notif.id} 
-                  className={`p-6 flex gap-4 hover:bg-gray-50 transition-colors ${notif.read ? 'opacity-70' : 'bg-blue-50/10'}`}
+                <li
+                  key={notif.id}
+                  className={`flex items-start gap-4 px-6 py-4 transition-colors ${notif.read ? 'bg-white' : 'bg-blue-50/30'}`}
                 >
-                  <div className={`p-3 rounded-full h-fit flex-shrink-0 ${color}`}>
-                    <Icon size={20} />
+                  <div className={`flex-shrink-0 w-9 h-9 rounded-full ${bg} flex items-center justify-center mt-0.5`}>
+                    <Icon size={17} className={color} />
                   </div>
-                  <div className="flex-1">
-                    <div className="flex justify-between items-start">
-                      <h4 className="text-base font-semibold text-gray-900">{notif.title}</h4>
-                      <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-md font-medium whitespace-nowrap">
-                        {new Date(notif.timestamp).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
-                      </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-semibold text-gray-900 leading-tight">{notif.title}</p>
+                      {!notif.read && (
+                        <span className="inline-block w-2 h-2 bg-blue-500 rounded-full flex-shrink-0" />
+                      )}
                     </div>
-                    <p className="text-sm text-gray-600 mt-1 leading-relaxed">{notif.message}</p>
+                    <p className="text-sm text-gray-600 mt-0.5 leading-snug">{notif.message}</p>
+                    <span className="text-xs text-gray-400 mt-1 block">
+                      {new Date(notif.timestamp).toLocaleString([], {
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </span>
                   </div>
-                  {!notif.read && (
-                    <div className="flex-shrink-0 flex items-center justify-center">
-                      <div className="w-2.5 h-2.5 bg-blue-600 rounded-full"></div>
-                    </div>
-                  )}
-                </div>
+                </li>
               );
             })}
-          </div>
+          </ul>
         )}
       </Card>
+
+      {notifications.length > 0 && (
+        <p className="text-xs text-center text-gray-400">
+          Showing last {notifications.length} notification{notifications.length !== 1 ? 's' : ''}
+        </p>
+      )}
     </div>
   );
 };

@@ -7,27 +7,9 @@ const api = axios.create({
   timeout: 10000,
 });
 
-// Map to store pending requests for cancellation and duplicate prevention
-const pendingRequests = new Map();
-
-const generateRequestKey = (config) => {
-  return `${config.method}:${config.url}`;
-};
-
-// Request interceptor to add the auth token and prevent duplicates
+// Request interceptor to add the auth token
 api.interceptors.request.use(
   (config) => {
-    // Prevent duplicate requests
-    const requestKey = generateRequestKey(config);
-    if (pendingRequests.has(requestKey)) {
-      const controller = pendingRequests.get(requestKey);
-      controller.abort(); // Cancel previous identical request
-    }
-    
-    const controller = new AbortController();
-    config.signal = controller.signal;
-    pendingRequests.set(requestKey, controller);
-
     const token = sessionStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -42,20 +24,9 @@ api.interceptors.request.use(
 // Response interceptor to handle errors globally
 api.interceptors.response.use(
   (response) => {
-    const requestKey = generateRequestKey(response.config);
-    pendingRequests.delete(requestKey);
     return response;
   },
   (error) => {
-    if (axios.isCancel(error)) {
-      return Promise.reject(error); // Silently reject cancelled requests
-    }
-
-    if (error.config) {
-      const requestKey = generateRequestKey(error.config);
-      pendingRequests.delete(requestKey);
-    }
-
     // Global error handling
     if (error.response) {
       const status = error.response.status;
